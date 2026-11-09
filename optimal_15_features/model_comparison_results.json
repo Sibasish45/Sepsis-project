@@ -1,0 +1,62 @@
+{
+    "Logistic Regression": {
+        "description": "Linear probabilistic classifier (baseline linear model)",
+        "accuracy": 0.7456,
+        "precision": 0.0493,
+        "recall_sensitivity": 0.5874,
+        "specificity": 0.7491,
+        "f1_score": 0.091,
+        "roc_auc": 0.716,
+        "pr_auc": 0.0803,
+        "cv_roc_auc_mean": 0.7206,
+        "cv_roc_auc_std": 0.0036,
+        "training_time_sec": 0.6326,
+        "inference_latency_ms_per_sample": 0.0001,
+        "confusion_matrix": {
+            "true_negative": 115816,
+            "false_positive": 38800,
+            "false_negative": 1414,
+            "true_positive": 2013
+        }
+    },
+    "Decision Tree": {
+        "description": "Single non-linear decision tree (baseline tree model)",
+        "accuracy": 0.8263,
+        "precision": 0.0824,
+        "recall_sensitivity": 0.6919,
+        "specificity": 0.8293,
+        "f1_score": 0.1473,
+        "roc_auc": 0.8218,
+        "pr_auc": 0.1427,
+        "cv_roc_auc_mean": 0.8262,
+        "cv_roc_auc_std": 0.0034,
+        "training_time_sec": 4.6086,
+        "inference_latency_ms_per_sample": 0.0003,
+        "confusion_matrix": {
+            "true_negative": 128218,
+            "false_positive": 26398,
+            "false_negative": 1056,
+            "true_positive": 2371
+        }
+    },
+    "Random Forest": {
+        "description": "Bagged ensemble of 100 decision trees (selected production model)",
+        "accuracy": 0.9556,
+        "precision": 0.2971,
+        "recall_sensitivity": 0.766,
+        "specificity": 0.9598,
+        "f1_score": 0.4282,
+        "roc_auc": 0.9653,
+        "pr_auc": 0.5214,
+        "cv_roc_auc_mean": 0.9643,
+        "cv_roc_auc_std": 0.0014,
+        "training_time_sec": 55.0791,
+        "inference_latency_ms_per_sample": 0.0069,
+        "confusion_matrix": {
+            "true_negative": 148406,
+            "false_positive": 6210,
+            "false_negative": 802,
+            "true_positive": 2625
+        }
+    }
+}

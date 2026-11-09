@@ -1,0 +1,21 @@
+{
+    "model_name": "Single Decision Tree",
+    "description": "Single non-linear decision tree (max_depth=10, class_weight='balanced')",
+    "accuracy": 0.8087,
+    "precision": 0.0729,
+    "recall_sensitivity": 0.6591,
+    "specificity": 0.8121,
+    "f1_score": 0.1312,
+    "roc_auc": 0.7652,
+    "pr_auc": 0.1157,
+    "cv_roc_auc_mean": 0.7033,
+    "cv_roc_auc_std": 0.0081,
+    "training_time_sec": 0.8001,
+    "inference_latency_ms_per_sample": 0.0003,
+    "confusion_matrix": {
+        "true_negative": 31770,
+        "false_positive": 7353,
+        "false_negative": 299,
+        "true_positive": 578
+    }
+}

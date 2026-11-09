@@ -1,0 +1,18 @@
+# Environment & secrets
+.env
+
+# Python bytecode & cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+
+# SQLite Databases
+*.db
+*.sqlite3
+
+# Large Datasets & Raw Archives (Exceed GitHub's 100MB File Limit)
+physionet_sepsis_processed.csv
+physionet_sepsis_combined.csv
+archive/

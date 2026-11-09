@@ -1,0 +1,17 @@
+{
+    "HR": 84.0,
+    "O2Sat": 98.0,
+    "Temp": 36.9,
+    "SBP": 119.0,
+    "MAP": 77.0,
+    "DBP": 59.0,
+    "Resp": 18.0,
+    "WBC": 10.8,
+    "Glucose": 123.0,
+    "Lactate": 1.5,
+    "Creatinine": 0.9,
+    "Platelets": 194.0,
+    "Age": 65.25,
+    "Gender": 1.0,
+    "ICULOS": 21.0
+}

@@ -1,0 +1,21 @@
+{
+    "model_name": "Random Forest",
+    "description": "Bagged ensemble of 100 decision trees (n_estimators=100, max_depth=15, class_weight='balanced')",
+    "accuracy": 0.9548,
+    "precision": 0.2458,
+    "recall_sensitivity": 0.5131,
+    "specificity": 0.9647,
+    "f1_score": 0.3323,
+    "roc_auc": 0.9164,
+    "pr_auc": 0.3306,
+    "cv_roc_auc_mean": 0.8505,
+    "cv_roc_auc_std": 0.006,
+    "training_time_sec": 5.3783,
+    "inference_latency_ms_per_sample": 0.0062,
+    "confusion_matrix": {
+        "true_negative": 37742,
+        "false_positive": 1381,
+        "false_negative": 427,
+        "true_positive": 450
+    }
+}

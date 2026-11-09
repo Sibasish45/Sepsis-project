@@ -1,0 +1,61 @@
+{
+    "models": {
+        "single_decision_tree": {
+            "model_name": "Single Decision Tree",
+            "description": "Single non-linear decision tree (max_depth=10, class_weight='balanced')",
+            "accuracy": 0.8087,
+            "precision": 0.0729,
+            "recall_sensitivity": 0.6591,
+            "specificity": 0.8121,
+            "f1_score": 0.1312,
+            "roc_auc": 0.7652,
+            "pr_auc": 0.1157,
+            "cv_roc_auc_mean": 0.7033,
+            "cv_roc_auc_std": 0.0081,
+            "training_time_sec": 0.8001,
+            "inference_latency_ms_per_sample": 0.0003,
+            "confusion_matrix": {
+                "true_negative": 31770,
+                "false_positive": 7353,
+                "false_negative": 299,
+                "true_positive": 578
+            }
+        },
+        "random_forest": {
+            "model_name": "Random Forest",
+            "description": "Bagged ensemble of 100 decision trees (n_estimators=100, max_depth=15, class_weight='balanced')",
+            "accuracy": 0.9548,
+            "precision": 0.2458,
+            "recall_sensitivity": 0.5131,
+            "specificity": 0.9647,
+            "f1_score": 0.3323,
+            "roc_auc": 0.9164,
+            "pr_auc": 0.3306,
+            "cv_roc_auc_mean": 0.8505,
+            "cv_roc_auc_std": 0.006,
+            "training_time_sec": 5.3783,
+            "inference_latency_ms_per_sample": 0.0062,
+            "confusion_matrix": {
+                "true_negative": 37742,
+                "false_positive": 1381,
+                "false_negative": 427,
+                "true_positive": 450
+            }
+        }
+    },
+    "performance_differences": {
+        "accuracy_diff": 0.1461,
+        "precision_diff": 0.1729,
+        "recall_diff": -0.146,
+        "specificity_diff": 0.1526,
+        "f1_score_diff": 0.2011,
+        "roc_auc_diff": 0.1512,
+        "pr_auc_diff": 0.2149,
+        "cv_roc_auc_diff": 0.1472
+    },
+    "key_takeaways": [
+        "Random Forest significantly outperforms Single Decision Tree in ROC-AUC and PR-AUC by bagging 100 decision trees.",
+        "Single Decision Tree exhibits higher variance and lower precision due to greedy decision splits.",
+        "Single Decision Tree offers high visual interpretability (explainable tree splits), while Random Forest offers superior clinical reliability."
+    ]
+}

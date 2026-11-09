@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepsis Clinical Decision Support System (CDSS)</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Chart.js for Vital Trend & Distribution Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Main Application Header -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2v20M2 12h20M12 6l4 4-4 4-4-4 4-4z"/>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <span class="brand-name">SEPSIS CDSS</span>
+                <span class="brand-tag">Clinical Decision Support System</span>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <div class="clinical-clock" id="clinicalClock">--:--:--</div>
+            
+            <a href="/dataset-viewer" target="_blank" class="btn btn-outline btn-sm" title="View PhysioNet Training Dataset">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Dataset Explorer</span>
+            </a>
+
+            <div class="user-profile-badge">
+                <div class="user-avatar" id="userAvatar">SC</div>
+                <span class="user-name" id="navUserName">Staff User</span>
+                <span class="role-pill" id="navUserRole">STAFF</span>
+            </div>
+
+            <button id="btnThemeToggle" class="btn-icon" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </button>
+
+            <button id="btnLogout" class="btn btn-outline btn-sm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Application Body Layout -->
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="app-sidebar" aria-label="Main Navigation">
+            <div class="sidebar-nav">
+                <div class="nav-section-label">Core Modules</div>
+
+                <button class="nav-item active" data-target="overview-section">
+                    <div class="icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    </div>
+                    <span>Overview Dashboard</span>
+                </button>
+
+                <button class="nav-item" data-target="predict-section">
+                    <div class="icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <span>Sepsis Assessment</span>
+                </button>
+
+                <button class="nav-item" data-target="patients-section">
+                    <div class="icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <span>Patient Directory</span>
+                </button>
+
+                <button class="nav-item" data-target="profile-section">
+                    <div class="icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <span>Patient Timeline</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="model-badge">
+                    <span class="dot online"></span>
+                    <span>ML Engine: <strong>RF_v1.0 (40 Feats)</strong></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="app-content">
+            <div id="globalAlert" class="alert hidden" role="alert"></div>
+
+            <!-- SECTION 1: OVERVIEW DASHBOARD -->
+            <section id="overview-section" class="content-section active">
+                <div class="section-header">
+                    <h2>Clinical Surveillance Dashboard</h2>
+                    <p class="subtitle">Real-time aggregate risk monitoring and ward surveillance metrics</p>
+                </div>
+
+                <!-- KPI Cards Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiTotalPatients">0</span>
+                            <span class="kpi-label">Active Ward Patients</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value" id="kpiTotalAssessments">0</span>
+                            <span class="kpi-label">Total Screenings Logged</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon red">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value text-danger" id="kpiHighRisk">0</span>
+                            <span class="kpi-label">High Risk Alerts (&gt;70%)</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon amber">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-value text-warning" id="kpiSirsPositive">0</span>
+                            <span class="kpi-label">SIRS Positive (≥2 Criteria)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Content Grid -->
+                <div class="dashboard-grid">
+                    <!-- Recent Alert Feed -->
+                    <div class="card grid-col-8">
+                        <div class="card-header">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                Recent Clinical Risk Alerts
+                            </h3>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="btnRefreshAlerts" class="btn btn-outline btn-sm">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    Refresh Feed
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Filter Pills -->
+                            <div class="filter-pills" id="alertFilterPills">
+                                <button class="filter-pill active" data-filter="all">All Alerts</button>
+                                <button class="filter-pill" data-filter="high">High Risk Only</button>
+                                <button class="filter-pill" data-filter="moderate">Moderate Risk</button>
+                                <button class="filter-pill" data-filter="sirs">SIRS Positive (≥2)</button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table" id="tableAlerts">
+                                    <thead>
+                                        <tr>
+                                            <th>Patient</th>
+                                            <th>Model Risk Score</th>
+                                            <th>Category</th>
+                                            <th>SIRS Criteria</th>
+                                            <th>Assessment Time</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyAlerts">
+                                        <tr><td colspan="6" class="text-center text-muted">Loading alerts feed...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Distribution -->
+                    <div class="card grid-col-4">
+                        <div class="card-header">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                                Risk Breakdown
+                            </h3>
+                        </div>
+                        <div class="card-body flex-column-center">
+                            <div class="chart-container" style="position: relative; height:230px; width:100%;">
+                                <canvas id="chartRiskDistribution"></canvas>
+                            </div>
+                            <div class="risk-legend" style="margin-top: 16px; width: 100%; display: flex; justify-content: space-around;">
+                                <span class="legend-item"><span class="badge badge-success">Low</span> <strong id="legendLow">0</strong></span>
+                                <span class="legend-item"><span class="badge badge-warning">Moderate</span> <strong id="legendMod">0</strong></span>
+                                <span class="legend-item"><span class="badge badge-danger">High</span> <strong id="legendHigh">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: SEPSIS RISK ASSESSMENT CALCULATOR -->
+            <section id="predict-section" class="content-section">
+                <div class="section-header">
+                    <h2>Sepsis Risk Assessment Calculator</h2>
+                    <p class="subtitle">Calculate ML model Sepsis Risk Score (40 features) & SIRS clinical criteria</p>
+                </div>
+
+                <div class="assessment-grid">
+                    <!-- Input Form Card -->
+                    <div class="card assessment-form-card">
+                        <div class="card-header">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                Patient Vital & Lab Entry
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Quick Clinical Presets Toolbar -->
+                            <div class="preset-toolbar">
+                                <span class="preset-title">Quick Presets:</span>
+                                <button type="button" class="btn-preset preset-low" id="btnPresetNormal">
+                                    <span>🟢 Normal Vitals</span>
+                                </button>
+                                <button type="button" class="btn-preset preset-mod" id="btnPresetSirs">
+                                    <span>🟡 SIRS Moderate</span>
+                                </button>
+                                <button type="button" class="btn-preset preset-high" id="btnPresetHighRisk">
+                                    <span>🔴 High Sepsis Risk</span>
+                                </button>
+                            </div>
+
+                            <form id="predictForm">
+                                <div class="form-group">
+                                    <label for="selectPatient">Select Ward Patient <span class="required">*</span></label>
+                                    <select id="selectPatient" name="patient_id" class="form-control" required>
+                                        <option value="">-- Choose Patient Profile --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-section-title">1. Primary Vital Signs & Respiration</div>
+                                
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label for="inputHR">Heart Rate (bpm) <span class="required">*</span> <span class="label-range">Normal: 60-100</span></label>
+                                        <input type="number" step="0.1" id="inputHR" name="HR" class="form-control" placeholder="e.g. 110" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputTemp">Temperature (°C) <span class="required">*</span> <span class="label-range">Normal: 36.5-37.5</span></label>
+                                        <input type="number" step="0.1" id="inputTemp" name="Temp" class="form-control" placeholder="e.g. 38.9" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputO2Sat">O2 Saturation (%) <span class="required">*</span> <span class="label-range">Normal: 95-100%</span></label>
+                                        <input type="number" step="0.1" id="inputO2Sat" name="O2Sat" class="form-control" placeholder="e.g. 94" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-section-title">2. Hemodynamics & Blood Pressure</div>
+
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label for="inputSBP">Systolic BP (mmHg) <span class="required">*</span> <span class="label-range">Normal: 90-120</span></label>
+                                        <input type="number" step="0.1" id="inputSBP" name="SBP" class="form-control" placeholder="e.g. 88" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputDBP">Diastolic BP (mmHg)</label>
+                                        <input type="number" step="0.1" id="inputDBP" name="DBP" class="form-control" placeholder="e.g. 58">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputMAP">Mean Arterial Pressure (mmHg)</label>
+                                        <input type="number" step="0.1" id="inputMAP" name="MAP" class="form-control" placeholder="e.g. 68">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="inputResp">Respiratory Rate (bpm) <span class="required">*</span> <span class="label-range">Normal: 12-20</span></label>
+                                        <input type="number" step="0.1" id="inputResp" name="Resp" class="form-control" placeholder="e.g. 24" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputWBC">White Blood Cell Count <span class="required">*</span> <span class="label-range">Normal: 4.0-11.0 k/uL</span></label>
+                                        <input type="number" step="0.1" id="inputWBC" name="WBC" class="form-control" placeholder="e.g. 15.2" required>
+                                    </div>
+                                </div>
+
+                                <!-- Collapsible Optional Laboratory Values -->
+                                <details class="lab-details-accordion">
+                                    <summary class="accordion-header">
+                                        <span>🧬 Advanced Biomarkers & Metabolic Parameters (Optional)</span>
+                                    </summary>
+                                    <div class="accordion-body form-grid-3">
+                                        <div class="form-group">
+                                            <label for="inputGlucose">Glucose (mg/dL)</label>
+                                            <input type="number" step="0.1" id="inputGlucose" name="Glucose" class="form-control" placeholder="124">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputLactate">Lactate (mmol/L) <span class="label-range">Critical: &gt;2.0</span></label>
+                                            <input type="number" step="0.1" id="inputLactate" name="Lactate" class="form-control" placeholder="1.8">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputPlatelets">Platelets (10^3/uL)</label>
+                                            <input type="number" step="0.1" id="inputPlatelets" name="Platelets" class="form-control" placeholder="181">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputCreatinine">Creatinine (mg/dL)</label>
+                                            <input type="number" step="0.1" id="inputCreatinine" name="Creatinine" class="form-control" placeholder="0.9">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputBUN">BUN (mg/dL)</label>
+                                            <input type="number" step="0.1" id="inputBUN" name="BUN" class="form-control" placeholder="18.0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputpH">Arterial pH</label>
+                                            <input type="number" step="0.01" id="inputpH" name="pH" class="form-control" placeholder="7.39">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="inputICULOS">ICU Length of Stay (hrs)</label>
+                                            <input type="number" id="inputICULOS" name="ICULOS" class="form-control" placeholder="21">
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <div class="form-actions" style="margin-top: 24px;">
+                                    <button type="submit" id="btnRunPrediction" class="btn btn-primary btn-lg btn-block">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                        <span>Evaluate Sepsis Risk Score</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Result Output Card -->
+                    <div class="card assessment-result-card" id="resultContainer">
+                        <div class="card-header flex-between">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                                CDSS Diagnostic Risk Output
+                            </h3>
+                            <div style="display: flex; gap: 8px;">
+                                <span class="badge badge-secondary" id="resModelVersion">RF_v1.0</span>
+                                <button type="button" class="btn btn-outline btn-sm hidden" id="btnPrintReport">Print Report</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="resultPlaceholder" class="placeholder-box">
+                                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <h4>Awaiting Measurement Input</h4>
+                                <p style="margin-top: 6px;">Select a ward patient and fill vital parameters to evaluate Machine Learning Sepsis Probability and SIRS score.</p>
+                            </div>
+
+                            <div id="resultContent" class="hidden">
+                                <!-- Model Risk Meter Box -->
+                                <div class="risk-display-box" id="boxRiskCategory">
+                                    <div class="risk-header">
+                                        <span class="risk-title">PREDICTED SEPSIS PROBABILITY</span>
+                                        <span class="risk-level-tag" id="resRiskCategory">HIGH RISK</span>
+                                    </div>
+                                    <div class="risk-score-value" id="resRiskPercent">0.0%</div>
+                                    
+                                    <!-- Visual Risk Bar -->
+                                    <div class="risk-meter-bar">
+                                        <div class="risk-meter-fill" id="resRiskFill" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="risk-threshold-marks">
+                                        <span>Low (&lt;30%)</span>
+                                        <span>Moderate (30-70%)</span>
+                                        <span>High (&gt;70%)</span>
+                                    </div>
+                                </div>
+
+                                <!-- SIRS Breakdown Card -->
+                                <div class="sirs-box">
+                                    <div class="sirs-header">
+                                        <h4>SIRS CRITERIA EVALUATION</h4>
+                                        <span class="badge" id="resSirsBadge">0 / 4 Criteria</span>
+                                    </div>
+                                    <ul class="sirs-list" id="resSirsList">
+                                        <!-- Dynamic SIRS items -->
+                                    </ul>
+                                </div>
+
+                                <!-- Follow-Up Indicators & Clinical Guidelines -->
+                                <div class="indicators-box">
+                                    <h4>SUGGESTED CLINICAL BUNDLE & INDICATORS</h4>
+                                    <div id="resIndicatorsList" class="indicators-list">
+                                        <!-- Dynamic indicators -->
+                                    </div>
+                                </div>
+
+                                <!-- Mandatory Clinical Disclaimer -->
+                                <div class="disclaimer-alert">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <span id="resDisclaimer">Decision-support output only. Not a clinical diagnosis. Consult attending physician before administering treatment.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: PATIENT DIRECTORY -->
+            <section id="patients-section" class="content-section">
+                <div class="section-header flex-between">
+                    <div>
+                        <h2>Patient Registry</h2>
+                        <p class="subtitle">Manage active ward profiles and clinical records</p>
+                    </div>
+                    <button id="btnOpenAddPatientModal" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <span>Register New Patient</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header flex-between">
+                        <div class="search-box" style="flex: 1; max-width: 400px;">
+                            <input type="text" id="inputSearchPatients" class="form-control" placeholder="Search by patient name, code, or MRN...">
+                        </div>
+                        <span class="text-muted" id="patientCountLabel">Showing 0 patients</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="tablePatients">
+                                <thead>
+                                    <tr>
+                                        <th>Patient Code & Name</th>
+                                        <th>Age / Gender</th>
+                                        <th>Medical Notes</th>
+                                        <th>Latest Sepsis Risk</th>
+                                        <th>Last Screened</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyPatients">
+                                    <tr><td colspan="6" class="text-center text-muted">Loading patient registry...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: PATIENT TIMELINE & HISTORY -->
+            <section id="profile-section" class="content-section">
+                <div class="section-header">
+                    <h2>Patient Longitudinal Risk & Vital Trends</h2>
+                    <p class="subtitle">Track clinical deterioration, vital trajectory, and historical risk progression</p>
+                </div>
+
+                <div class="profile-select-bar card p-3 mb-4">
+                    <div class="form-group mb-0" style="display: flex; align-items: center; gap: 16px;">
+                        <label for="selectTimelinePatient" class="mr-2" style="margin-bottom: 0; font-weight: 700;">Select Patient History:</label>
+                        <select id="selectTimelinePatient" class="form-control" style="max-width: 400px;">
+                            <option value="">-- Choose Patient Profile --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="patientTimelineContent" class="hidden">
+                    <!-- Patient Summary Card -->
+                    <div class="card mb-4">
+                        <div class="card-body flex-between">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <div class="avatar-circle" style="width: 48px; height: 48px; font-size: 18px;" id="profAvatar">P</div>
+                                <div>
+                                    <h3 id="profPatientName" style="font-size: 20px; font-weight: 800;">Patient Name</h3>
+                                    <p class="text-muted mb-0" id="profPatientMeta">Code: PAT-1001 | Age: -- | Gender: --</p>
+                                </div>
+                            </div>
+                            <button id="btnNewAssessmentForPatient" class="btn btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                Evaluate New Risk Score
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Trend Charts Row -->
+                    <div class="dashboard-grid mb-4">
+                        <div class="card grid-col-6">
+                            <div class="card-header">
+                                <h3>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                                    Sepsis Risk Trajectory (%)
+                                </h3>
+                            </div>
+                            <div class="card-body"><canvas id="chartRiskTrend" height="220"></canvas></div>
+                        </div>
+                        <div class="card grid-col-6">
+                            <div class="card-header">
+                                <h3>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                    Vital Signs Progression (HR, Temp, SBP)
+                                </h3>
+                            </div>
+                            <div class="card-body"><canvas id="chartVitalsTrend" height="220"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- Readings History Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                Historical Reading Log
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="tableHistory">
+                                    <thead>
+                                        <tr>
+                                            <th>Recorded Time</th>
+                                            <th>Heart Rate</th>
+                                            <th>Temp (°C)</th>
+                                            <th>SBP / DBP</th>
+                                            <th>WBC</th>
+                                            <th>Model Risk</th>
+                                            <th>Risk Category</th>
+                                            <th>SIRS Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyHistory">
+                                        <tr><td colspan="8" class="text-center text-muted">No historical readings found.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: REGISTER NEW PATIENT -->
+    <div id="modalAddPatient" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content card">
+            <div class="card-header flex-between">
+                <h3>Register Ward Patient Profile</h3>
+                <button class="btn-close" id="btnCloseModal">&times;</button>
+            </div>
+            <div class="card-body">
+                <form id="addPatientForm">
+                    <div class="form-group">
+                        <label for="newFullName">Full Patient Name <span class="required">*</span></label>
+                        <input type="text" id="newFullName" name="full_name" class="form-control" placeholder="e.g. Johnathan Doe" required>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="newAge">Age (Years) <span class="required">*</span></label>
+                            <input type="number" id="newAge" name="age" class="form-control" min="0" max="120" placeholder="e.g. 65" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newGender">Gender <span class="required">*</span></label>
+                            <select id="newGender" name="gender" class="form-control" required>
+                                <option value="1">Male (1)</option>
+                                <option value="0">Female (0)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newMedicalHistory">Clinical Medical History / Comorbidities</label>
+                        <textarea id="newMedicalHistory" name="medical_history" class="form-control" rows="3" placeholder="e.g. History of hypertension, type 2 diabetes, recent abdominal surgery..."></textarea>
+                    </div>
+
+                    <div class="form-actions text-right">
+                        <button type="button" class="btn btn-outline mr-2" id="btnCancelAddPatient">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Patient Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Modules -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/patients.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/predict.js"></script>
+</body>
+</html>
